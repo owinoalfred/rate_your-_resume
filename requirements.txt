@@ -1,0 +1,10 @@
+streamlit
+spacy
+scikit-learn
+PyPDF2
+flake8
+pytest
+transformers
+torch
+spacy
+scikit-learn
