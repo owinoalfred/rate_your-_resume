@@ -2,9 +2,35 @@ import logging
 import streamlit as st
 from utils.pdf_processor import extract_text_from_pdf
 from utils.text_utils import get_final_score
+import subprocess
+import importlib.util
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+def is_spacy_model_installed(model_name):
+    model_spec = importlib.util.find_spec(model_name)
+    return model_spec is not None
+
+def download_spacy_model(model_name):
+    subprocess.run(["python", "-m", "spacy", "download", model_name])
+
+# Ensure the spaCy model is installed
+model_name = "en_core_web_sm"
+if not is_spacy_model_installed(model_name):
+    download_spacy_model(model_name)
+
+import spacy
+
+# Load the spaCy model
+nlp = spacy.load(model_name)
+
+@st.cache_data
+def extract_text(file):
+    if file.type == "application/pdf":
+        return extract_text_from_pdf(file)
+    else:
+        return file.read().decode("utf-8")
 
 def main():
     st.title("AI-Powered Resume Analyzer")
@@ -69,13 +95,6 @@ def main():
             except Exception as e:
                 logging.error("Error processing files: %s", e)
                 st.error("An error occurred while processing the files. Please try again.")
-
-@st.cache_data
-def extract_text(file):
-    if file.type == "application/pdf":
-        return extract_text_from_pdf(file)
-    else:
-        return file.read().decode("utf-8")
 
 if __name__ == "__main__":
     main()
