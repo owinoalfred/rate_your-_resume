@@ -23,7 +23,11 @@ if not is_spacy_model_installed(model_name):
 import spacy
 
 # Load the spaCy model
-nlp = spacy.load(model_name)
+try:
+    nlp = spacy.load(model_name)
+except OSError:
+    download_spacy_model(model_name)
+    nlp = spacy.load(model_name)
 
 @st.cache_data
 def extract_text(file):
